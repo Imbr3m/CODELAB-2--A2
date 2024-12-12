@@ -38,14 +38,21 @@ search_frame = tk.Frame(root, relief = tk.RAISED, borderwidth = 2)
 
 search_frame.columnconfigure([0,1,2,3], weight = 1)
 
-label = tk.Label(search_frame, text = "Left Arrow", font = ("Futura", 16))
-label.grid(row = 0, column = 0)
+# I converted this to a button
+left_button = tk.Button(search_frame, text = "Left Arrow", font = ("Futura", 16))
+left_button.grid(row = 0, column = 0)
 
-label = tk.Label(search_frame, text = "Search Box\nwith Drop-down Menu?", font = ("Futura", 16))
-label.grid(row = 0, column = 1, columnspan = 2)
+# made an entry box for users to type latr
+# Give it a relevant name so that we can use it.
+submit_entry = tk.Entry(search_frame, font = ("Futura", 16))
+submit_entry.grid(row = 0, column = 1)
 
-label = tk.Label(search_frame, text = "Right Arrow", font = ("Futura", 16))
-label.grid(row = 0, column = 3)
+submit_button = tk.Button(search_frame, text = "Search!", font = ("Futura", 16))
+submit_button.grid(row = 0, column = 2)
+
+# Converted this to a th right button
+right_button = tk.Button(search_frame, text = "Right Arrow", font = ("Futura", 16))
+right_button.grid(row = 0, column = 3)
 
 search_frame.grid(row = 0, column = 1, columnspan = 2, sticky = "ew")
 
