@@ -1,7 +1,6 @@
-
+from PIL import Image, ImageTk  # Import for handling images
 
 import requests
-
 import tkinter as tk
 
 # The window!
@@ -11,26 +10,29 @@ root.title("Pokedex")
 root.geometry("800x500")
 root.configure(background = "purple")
 
-##
+
+root.configure(background="purple")
+
+# base url for the api
 base_url = "https://pokeapi.co/api/v2/"
 
-# global variable to track the current Pokémon ID
+# global pokemon id
 current_pokemon_id = 1
 
-###Functions
+### FUNCTIONS
 
-#fetches info from the API
-def get_pokemon_info(name):
-    url = f"{base_url}/pokemon/{name}"
+
+
+# Fetches info from the API
+def get_pokemon_info(identifier):
+    url = f"{base_url}/pokemon/{identifier}"
     response = requests.get(url)
     
     if response.status_code == 200:
-        pokemon_data = response.json()
-        return pokemon_data
-    else: 
-        print(f"Failed to recieve data {response.status_code}")
+        return response.json()
+    else:
+        print(f"Failed to receive data: {response.status_code}")
         return None
-
 
 def update_ui(data):
     if data:
@@ -41,10 +43,14 @@ def update_ui(data):
             f"Type 2: {data['types'][1]['type']['name']}"
             if len(data['types']) > 1 else "Type 2: None"
         )
-        height_entry["text"] = f"Height: {data['height']}"
-        weight_entry["text"] = f"Weight: {data['weight']}"
-        id_entry["text"] = f"ID: {data['id']}"
-        catch_entry["text"] = "Catch Rate: N/A"  # Placeholder (not in basic API response)
+        height_entry["text"] = f"Height: {data['height']}m"
+        weight_entry["text"] = f"Weight: {data['weight']}kg"
+        species_entry["text"] = f"ID: {data['id']}"
+
+        # Update stats
+        stats = data.get('stats', [])
+        stats_text = "\n".join([f"{stat['stat']['name'].capitalize()}: {stat['base_stat']}" for stat in stats])
+        stats_entry["text"] = f"Stats:\n{stats_text}"
     else:
         # Reset UI if no data is found
         name_text["text"] = "Not Found"
@@ -52,8 +58,8 @@ def update_ui(data):
         type2label["text"] = "Type 2: N/A"
         height_entry["text"] = "Height: N/A"
         weight_entry["text"] = "Weight: N/A"
-        id_entry["text"] = "ID: N/A"
-        catch_entry["text"] = "Catch Rate: N/A"
+        species_entry["text"] = "ID: N/A"
+        stats_entry["text"] = "Stats: N/A"
 
 def select_pokemon(move=None):
     global current_pokemon_id
@@ -67,101 +73,78 @@ def select_pokemon(move=None):
         if user_input.isdigit():
             current_pokemon_id = int(user_input)
         else:
-            # Fetch Pokémon data by name
             data = get_pokemon_info(user_input)
             if data:
                 current_pokemon_id = data['id']
-            else:
-                # Handle invalid input gracefully
-                update_ui(None)
-                return
 
-    # Fetch Pokémon data by ID and update UI
     data = get_pokemon_info(current_pokemon_id)
     update_ui(data)
 
-
-###TKINTER
-
-
+### TKINTER
 
 # Configure 4 rows and 3 columns.
-root.rowconfigure([i for i in range(4)], minsize = 50, weight = 1)
-root.columnconfigure([i for i in range(3)], minsize = 50, weight = 1)
+root.rowconfigure([i for i in range(4)], minsize=50, weight=1)
+root.columnconfigure([i for i in range(3)], minsize=50, weight=1)
 
-### Name Frame
 # Name Frame
 name_label = tk.Frame(root, relief=tk.RAISED, borderwidth=4)
 name_text = tk.Label(name_label, text="Pokemon Name Here", font=("Futura", 16))
 name_text.pack()
 name_label.grid(row=0, column=2)
 
-
-### Picture Frame
-picture_frame = tk.Frame(root, relief = tk.SUNKEN, borderwidth = 2)
-label = tk.Label(picture_frame, text = "Pokemon Picture Here", font = ("Futura", 16))
+# Picture Frame
+picture_frame = tk.Frame(root, relief=tk.SUNKEN, borderwidth=2)
+label = tk.Label(picture_frame, text="Pokemon Picture Here", font=("Futura", 16))
 label.pack()
-picture_frame.grid(row = 1, column = 2, rowspan = 2, sticky = "ns")
+picture_frame.grid(row=1, column=2, rowspan=2, sticky="ns")
 
-### Type Frame
-type_frame = tk.Frame(root, relief = tk.RAISED, borderwidth = 2)
-type1label = tk.Label(type_frame, text = "Type 1 Here", font = ("Futura", 12))
-type1label.grid(row = 0, column = 0)
-type2label = tk.Label(type_frame, text = "Type 2 Here", font = ("Futura", 12))
-type2label.grid(row = 0, column = 1)
-type_frame.grid(row = 3, column = 2)
+# Type Frame
+type_frame = tk.Frame(root, relief=tk.RAISED, borderwidth=2)
+type1label = tk.Label(type_frame, text="Type 1 Here", font=("Futura", 12))
+type1label.grid(row=0, column=0)
+type2label = tk.Label(type_frame, text="Type 2 Here", font=("Futura", 12))
+type2label.grid(row=0, column=1)
+type_frame.grid(row=3, column=2)
 
-### Search Frame
-search_frame = tk.Frame(root, relief = tk.RAISED, borderwidth = 2)
+# Search Frame
+search_frame = tk.Frame(root, relief=tk.RAISED, borderwidth=2)
+search_frame.columnconfigure([0, 1, 2, 3], weight=1)
 
+left_button = tk.Button(search_frame, text="Left Arrow", font=("Futura", 16), command=lambda: select_pokemon(move="backward"))
+left_button.grid(row=0, column=0)
 
-search_frame.columnconfigure([0,1,2,3], weight = 1)
+submit_entry = tk.Entry(search_frame, font=("Futura", 16))
+submit_entry.grid(row=0, column=1)
 
-# I converted this to a button
-left_button = tk.Button(search_frame, text = "Left Arrow", font = ("Futura", 16), command = lambda: select_pokemon(move = 'backward'))
-left_button.grid(row = 0, column = 0)
+submit_button = tk.Button(search_frame, text="Search!", font=("Futura", 16), command=lambda: select_pokemon())
+submit_button.grid(row=0, column=2)
 
-# made an entry box for users to type latr
-# Give it a relevant name so that we can use it.
-submit_entry = tk.Entry(search_frame, font = ("Futura", 16))
-submit_entry.grid(row = 0, column = 1)
+right_button = tk.Button(search_frame, text="Right Arrow", font=("Futura", 16), command=lambda: select_pokemon(move="forward"))
+right_button.grid(row=0, column=3)
 
-submit_button = tk.Button(search_frame, text = "Search!", font = ("Futura", 16), command = select_pokemon)
-submit_button.grid(row = 0, column = 2)
+search_frame.grid(row=0, column=0, columnspan=2, sticky="ew")
 
-# Converted this to a th right button
-right_button = tk.Button(search_frame, text = "Right Arrow", font = ("Futura", 16), command = lambda: select_pokemon(move = 'forward'))
-right_button.grid(row = 0, column = 3)
+# Info Frame
+info_frame = tk.Frame(root, relief=tk.SUNKEN, borderwidth=4)
+info_frame.rowconfigure([0, 1, 2], weight=1)
+info_frame.columnconfigure([0, 1], weight=1)
 
-search_frame.grid(row = 0, column = 0, columnspan = 2, sticky = "ew")
+pokedex_entry = tk.Label(info_frame, text="Pokedex Entry", font=("Futura", 16))
+pokedex_entry.grid(row=0, column=0, columnspan=2)
 
-### Info Frame
-info_frame = tk.Frame(root, relief = tk.SUNKEN, borderwidth = 4)
+height_entry = tk.Label(info_frame, text="Height", font=("Futura", 16))
+height_entry.grid(row=1, column=0)
 
-# Calling rowconfigure and columnfigure within the info_frame
-# causes the contents of the frame (label) to be centered within it.
-info_frame.rowconfigure([0,1,2], weight = 1)
-info_frame.columnconfigure([0,1], weight = 1)
+weight_entry = tk.Label(info_frame, text="Weight", font=("Futura", 16))
+weight_entry.grid(row=1, column=1)
 
-## Various Information
+species_entry = tk.Label(info_frame, text="Species", font=("Futura", 16))
+species_entry.grid(row=2, column=0)
 
-# The Pokedex entry is long, so we'll let it take up two columns
-pokedex_entry = tk.Label(info_frame, text = "Pokedex Entry", font = ("Futura", 16))
-pokedex_entry.grid(row = 0, column = 0, columnspan = 2)
+stats_entry = tk.Label(info_frame, text="Stats", font=("Futura", 16), justify="left")
+stats_entry.grid(row=2, column=1)
 
-height_entry = tk.Label(info_frame, text = "Height", font = ("Futura", 16))
-height_entry.grid(row = 1, column = 0)
-
-weight_entry = tk.Label(info_frame, text = "Weight", font = ("Futura", 16))
-weight_entry.grid(row = 1, column = 1)
-
-id_entry = tk.Label(info_frame, text = "ID", font = ("Futura", 16))
-id_entry.grid(row = 2, column = 0)
-
-catch_entry = tk.Label(info_frame, text = "Catch Rate", font = ("Futura", 16))
-catch_entry.grid(row = 2, column = 1)
-
-info_frame.grid(row = 1, rowspan = 3, column = 0, columnspan = 2, sticky = "nsew")
+info_frame.grid(row=1, rowspan=3, column=0, columnspan=2, sticky="nsew")
 
 # Run the App
 root.mainloop()
