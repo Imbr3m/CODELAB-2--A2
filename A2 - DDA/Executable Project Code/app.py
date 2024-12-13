@@ -1,4 +1,6 @@
 from PIL import Image, ImageTk  # Import for handling images
+from io import BytesIO  # To handle image byte data
+import os #debuggin
 
 import requests
 import tkinter as tk
@@ -20,6 +22,15 @@ base_url = "https://pokeapi.co/api/v2/"
 current_pokemon_id = 1
 
 ### FUNCTIONS
+
+#For debugg reasons idk why the pokemon logo isnt showing up
+image_path = r"A2 - DDA\Executable Project Code\assets\imgs\pokemon-logo-black-transparent.png"
+if os.path.exists(image_path):
+    print("File found!")
+    pokemon_title_image = Image.open(image_path)
+else:
+    print(f"File not found: {image_path}")
+
 
 
 
@@ -45,12 +56,28 @@ def update_ui(data):
         )
         height_entry["text"] = f"Height: {data['height']}m"
         weight_entry["text"] = f"Weight: {data['weight']}kg"
-        species_entry["text"] = f"ID: {data['id']}"
+        id_entry["text"] = f"ID: {data['id']}"
 
-        # Update stats
+        # updates stats
         stats = data.get('stats', [])
         stats_text = "\n".join([f"{stat['stat']['name'].capitalize()}: {stat['base_stat']}" for stat in stats])
         stats_entry["text"] = f"Stats:\n{stats_text}"
+        
+         # updates the image
+        image_url = data['sprites']['front_default']
+        if image_url:
+            # Fetch the image
+            response = requests.get(image_url)
+            img_data = response.content
+
+            # Open the image using PIL
+            img = Image.open(BytesIO(img_data))
+            img = img.resize((200, 200))  # Resize the image to fit in the UI
+            photo = ImageTk.PhotoImage(img)
+
+            # Update the label with the new image
+            label.config(image=photo)
+            label.image = photo  # Keep a reference to the image to prevent it from being garbage collected
     else:
         # Reset UI if no data is found
         name_text["text"] = "Not Found"
@@ -58,8 +85,9 @@ def update_ui(data):
         type2label["text"] = "Type 2: N/A"
         height_entry["text"] = "Height: N/A"
         weight_entry["text"] = "Weight: N/A"
-        species_entry["text"] = "ID: N/A"
+        id_entry["text"] = "ID: N/A"
         stats_entry["text"] = "Stats: N/A"
+        label.config(image="")  # will remoove image if nothin
 
 def select_pokemon(move=None):
     global current_pokemon_id
@@ -129,8 +157,17 @@ info_frame = tk.Frame(root, relief=tk.SUNKEN, borderwidth=4)
 info_frame.rowconfigure([0, 1, 2], weight=1)
 info_frame.columnconfigure([0, 1], weight=1)
 
-pokedex_entry = tk.Label(info_frame, text="Pokedex Entry", font=("Futura", 16))
-pokedex_entry.grid(row=0, column=0, columnspan=2)
+# Load the image
+image_path = r"C:\Users\raine\CODELAB-2--A2\A2 - DDA\Executable Project Code\assets\imgs\pokemon-logo-black-transparent.png"
+
+pokemon_title_image = Image.open(image_path)
+pokemon_title_image = pokemon_title_image.resize((200, 100))  
+
+pokemon_title_photo = ImageTk.PhotoImage(pokemon_title_image)
+
+pokedex_logo = tk.Label(info_frame, image=pokemon_title_photo)
+pokedex_logo.image = pokemon_title_photo  
+pokedex_logo.grid(row=0, column=0, columnspan=2)
 
 height_entry = tk.Label(info_frame, text="Height", font=("Futura", 16))
 height_entry.grid(row=1, column=0)
@@ -138,8 +175,8 @@ height_entry.grid(row=1, column=0)
 weight_entry = tk.Label(info_frame, text="Weight", font=("Futura", 16))
 weight_entry.grid(row=1, column=1)
 
-species_entry = tk.Label(info_frame, text="Species", font=("Futura", 16))
-species_entry.grid(row=2, column=0)
+id_entry = tk.Label(info_frame, text="ID", font=("Futura", 16))
+id_entry.grid(row=2, column=0)
 
 stats_entry = tk.Label(info_frame, text="Stats", font=("Futura", 16), justify="left")
 stats_entry.grid(row=2, column=1)
