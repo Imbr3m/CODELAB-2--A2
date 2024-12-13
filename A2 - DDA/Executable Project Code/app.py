@@ -1,8 +1,8 @@
-from PIL import Image, ImageTk  # Import for handling images
+from PIL import Image, ImageTk  # for handling images and font
 from io import BytesIO  # To handle image byte data
 import os #debuggin
 import pygame # for music
-import requests
+import requests #to requests api 
 import tkinter as tk
 
 # The window!
@@ -10,10 +10,7 @@ root = tk.Tk()
 
 root.title("Pokedex")
 root.geometry("800x500")
-root.configure(background = "purple")
-
-
-root.configure(background="purple")
+root.configure(background = "black")
 
 # base url for the api
 base_url = "https://pokeapi.co/api/v2/"
@@ -23,6 +20,8 @@ current_pokemon_id = 1
 
 #for music I have to initializee
 pygame.mixer.init()
+
+
 
 ### FUNCTIONS
 
@@ -38,16 +37,14 @@ if os.path.exists(bgm_path):
     print("Music file found!")
 else:
     print(f"Music file not found: {bgm_path}")
-    
+
 
 # Play background music
 pygame.mixer.music.load(bgm_path)
-pygame.mixer.music.set_volume(0.5)  # 50% volume
+pygame.mixer.music.set_volume(0.25)  # 50% volume
 pygame.mixer.music.play(-1, 0.0)  # loops the music
-
 # Global flag to track mute status
 is_muted = False
-
 
 
 # Fetches info from the API
@@ -65,11 +62,11 @@ def update_ui(data):
     if data:
         # Update the UI with Pokémon data
         name_text["text"] = data.get("name", "Unknown").capitalize()
-        type1label["text"] = f"Type 1: {data['types'][0]['type']['name']}"
+        type1label["text"] = data['types'][0]['type']['name']  # No extra space here
         type2label["text"] = (
-            f"Type 2: {data['types'][1]['type']['name']}"
-            if len(data['types']) > 1 else "Type 2: None"
-        )
+        f"|| {data['types'][1]['type']['name']}"  
+        if len(data['types']) > 1 else ""
+)
         height_entry["text"] = f"Height: {data['height']}m"
         weight_entry["text"] = f"Weight: {data['weight'] / 10}kg" #had to divide it to 10 cause its inaccurate
         id_entry["text"] = f"ID: {data['id']}"
@@ -148,31 +145,30 @@ root.columnconfigure([i for i in range(3)], minsize=50, weight=1)
 
 #Name Frame
 name_label = tk.Frame(root, relief=tk.RAISED, borderwidth=4)
-name_text = tk.Label(name_label, text="Pokemon Name Here", font=("Futura", 16))
+name_text = tk.Label(name_label, text="Pokemon Name Here", font=("", 16))
 name_text.pack()
 name_label.grid(row=0, column=2)
 
 #Picture Frame
 #loads the image of the pokemoinn
 picture_frame = tk.Frame(root, relief=tk.SUNKEN, borderwidth=2)
-label = tk.Label(picture_frame, text="Pokemon Picture Here", font=("Futura", 16))
+label = tk.Label(picture_frame, text="Pokemon Picture Here", font=("Fixedsys", 16))
 label.pack(side=tk.TOP, pady=10, expand=True) 
 picture_frame.grid(row=1, column=2, rowspan=2, sticky="ns")
 
 #Type Frame
 type_frame = tk.Frame(root, relief=tk.RAISED, borderwidth=2)
-type1label = tk.Label(type_frame, text="Type 1 Here", font=("Futura", 12))
+type1label = tk.Label(type_frame, text="Type 1 Here", font=("Fixedsys", 12))
 type1label.grid(row=0, column=0)
-type2label = tk.Label(type_frame, text="Type 2 Here", font=("Futura", 12))
+type2label = tk.Label(type_frame, text="Type 2 Here", font=("Fixedsys", 12))
 type2label.grid(row=0, column=1)
 type_frame.grid(row=3, column=2)
 
 # Mute button
 mute_frame = tk.Frame(root, relief=tk.RAISED, borderwidth=2, width=2)
-mute_button = tk.Button(mute_frame, text="Mute", font=("Futura", 16), command=toggle_mute)
-mute_button.grid(row=0, column=0, sticky="w")
-mute_frame.grid(row=4, column=2, columnspan=2 ,sticky="ew")
-
+mute_button = tk.Button(mute_frame, text="Mute", font=("Fixedsys", 16), command=toggle_mute)
+mute_button.grid(row=0, column=0, sticky="e")
+mute_frame.grid(row=4, column=2, columnspan=2 ,sticky="es")
 
 
 
@@ -180,16 +176,16 @@ mute_frame.grid(row=4, column=2, columnspan=2 ,sticky="ew")
 search_frame = tk.Frame(root, relief=tk.RAISED, borderwidth=2)
 search_frame.columnconfigure([0, 1, 2, 3], weight=1)
 
-left_button = tk.Button(search_frame, text="Left Arrow", font=("Futura", 16), command=lambda: select_pokemon(move="backward"))
+left_button = tk.Button(search_frame, text="Left Arrow", font=("Fixedsys", 16), command=lambda: select_pokemon(move="backward"))
 left_button.grid(row=0, column=0)
 
-submit_entry = tk.Entry(search_frame, font=("Futura", 16))
+submit_entry = tk.Entry(search_frame, font=("Fixedsys", 16))
 submit_entry.grid(row=0, column=1)
 
-submit_button = tk.Button(search_frame, text="Search!", font=("Futura", 16), command=lambda: select_pokemon())
+submit_button = tk.Button(search_frame, text="Search!", font=("Fixedsys", 16), command=lambda: select_pokemon())
 submit_button.grid(row=0, column=2)
 
-right_button = tk.Button(search_frame, text="Right Arrow", font=("Futura", 16), command=lambda: select_pokemon(move="forward"))
+right_button = tk.Button(search_frame, text="Right Arrow", font=("Fixedsys", 16), command=lambda: select_pokemon(move="forward"))
 right_button.grid(row=0, column=3)
 
 search_frame.grid(row=0, column=0, columnspan=2, sticky="ew")
@@ -209,16 +205,16 @@ pokedex_logo = tk.Label(info_frame, image=pokemon_title_photo)
 pokedex_logo.image = pokemon_title_photo  
 pokedex_logo.grid(row=0, column=0, columnspan=2)
 #Height
-height_entry = tk.Label(info_frame, text="Height", font=("Futura", 16))
+height_entry = tk.Label(info_frame, text="Height", font=("Fixedsys", 16))
 height_entry.grid(row=1, column=0)
  # Wweight
-weight_entry = tk.Label(info_frame, text="Weight", font=("Futura", 16))
+weight_entry = tk.Label(info_frame, text="Weight", font=("Fixedsys", 16))
 weight_entry.grid(row=1, column=1)
 #id
-id_entry = tk.Label(info_frame, text="ID", font=("Futura", 16))
+id_entry = tk.Label(info_frame, text="ID", font=("Fixedsys", 16))
 id_entry.grid(row=2, column=0)
 #Stats
-stats_entry = tk.Label(info_frame, text="Stats", font=("Futura", 16), justify="left")
+stats_entry = tk.Label(info_frame, text="Stats", font=("Fixedsys", 16), justify="left")
 stats_entry.grid(row=2, column=1)
 
 info_frame.grid(row=1, rowspan=3, column=0, columnspan=2, sticky="nsew")
