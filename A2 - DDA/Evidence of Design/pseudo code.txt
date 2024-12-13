@@ -1,0 +1,14 @@
+Pseudo Code:
+Initialize the app with window size, title, and background music
+Load the Pokémon logo and background music
+
+While the app is running:
+    - Wait for user input
+    - If the input is a Pokémon ID, fetch data by ID
+    - If input is a Pokémon name, fetch data by name
+    - Display fetched data (name, type, stats, etc.)
+    - Handle left and right arrow clicks to change Pokémon
+    - Update music volume on the mute button click
+    - Display images (sprite and logo)
+
+End the program when closed
