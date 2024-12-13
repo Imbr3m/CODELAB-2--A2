@@ -55,7 +55,7 @@ def update_ui(data):
             if len(data['types']) > 1 else "Type 2: None"
         )
         height_entry["text"] = f"Height: {data['height']}m"
-        weight_entry["text"] = f"Weight: {data['weight']}kg"
+        weight_entry["text"] = f"Weight: {data['weight'] / 10}kg" #had to divide it to 10 cause its inaccurate
         id_entry["text"] = f"ID: {data['id']}"
 
         # updates stats
@@ -89,15 +89,15 @@ def update_ui(data):
         stats_entry["text"] = "Stats: N/A"
         label.config(image="")  # will remoove image if nothin
 
-def select_pokemon(move=None):
+def select_pokemon(move=None): #the buttons
     global current_pokemon_id
 
-    if move == "forward":
+    if move == "forward": #moves the id forward by one
         current_pokemon_id += 1
-    elif move == "backward" and current_pokemon_id > 1:
+    elif move == "backward" and current_pokemon_id > 1: #vice versa
         current_pokemon_id -= 1
-    else:
-        user_input = submit_entry.get().strip().lower()
+    else: 
+        user_input = submit_entry.get().strip().lower() #else its the search button so it searches either the id number or the name of the pokemon
         if user_input.isdigit():
             current_pokemon_id = int(user_input)
         else:
@@ -110,23 +110,23 @@ def select_pokemon(move=None):
 
 ### TKINTER
 
-# Configure 4 rows and 3 columns.
-root.rowconfigure([i for i in range(4)], minsize=50, weight=1)
+#5 rows and 3 columns.
+root.rowconfigure([i for i in range(5)], minsize=50, weight=1)
 root.columnconfigure([i for i in range(3)], minsize=50, weight=1)
 
-# Name Frame
+#Name Frame
 name_label = tk.Frame(root, relief=tk.RAISED, borderwidth=4)
 name_text = tk.Label(name_label, text="Pokemon Name Here", font=("Futura", 16))
 name_text.pack()
 name_label.grid(row=0, column=2)
 
-# Picture Frame
+#Picture Frame
 picture_frame = tk.Frame(root, relief=tk.SUNKEN, borderwidth=2)
 label = tk.Label(picture_frame, text="Pokemon Picture Here", font=("Futura", 16))
-label.pack()
+label.pack(side=tk.TOP, pady=10, expand=True) 
 picture_frame.grid(row=1, column=2, rowspan=2, sticky="ns")
 
-# Type Frame
+#Type Frame
 type_frame = tk.Frame(root, relief=tk.RAISED, borderwidth=2)
 type1label = tk.Label(type_frame, text="Type 1 Here", font=("Futura", 12))
 type1label.grid(row=0, column=0)
@@ -134,7 +134,7 @@ type2label = tk.Label(type_frame, text="Type 2 Here", font=("Futura", 12))
 type2label.grid(row=0, column=1)
 type_frame.grid(row=3, column=2)
 
-# Search Frame
+#Search Frame
 search_frame = tk.Frame(root, relief=tk.RAISED, borderwidth=2)
 search_frame.columnconfigure([0, 1, 2, 3], weight=1)
 
@@ -152,12 +152,12 @@ right_button.grid(row=0, column=3)
 
 search_frame.grid(row=0, column=0, columnspan=2, sticky="ew")
 
-# Info Frame
+#Info Frame
 info_frame = tk.Frame(root, relief=tk.SUNKEN, borderwidth=4)
 info_frame.rowconfigure([0, 1, 2], weight=1)
 info_frame.columnconfigure([0, 1], weight=1)
 
-# Load the image
+#loads the image of the pokemoinn
 image_path = r"C:\Users\raine\CODELAB-2--A2\A2 - DDA\Executable Project Code\assets\imgs\pokemon-logo-black-transparent.png"
 
 pokemon_title_image = Image.open(image_path)
