@@ -8,6 +8,8 @@ root.geometry("800x500")
 root.configure(background = "purple")
 
 
+###Functions
+
 #Dummy information to test the search button
 pokedex = {
     "bulbasaur": ["bulbasaur", "grass", "poison", 15, 15, "Grass Starter", 3.8],
@@ -15,11 +17,37 @@ pokedex = {
     "charmander": ["charmander", "fire", "none", 25, 25, "Fire Starter", 7.3]
 }
 
-def select_pokemon():
-    # gets the text typed into the Entry widget
-    selected = submit_entry.get()
+def select_pokemon(move = None):
+    # gets the text typed into the Entry box
+    selected = submit_entry.get().lower() #made the thing lowercase just in case
     
-    # updates the text variable of the relevant labels with the appropriate information
+    # creates a list of Pokemon based on our dictionary.
+    pokelist = list(pokedex.keys())
+
+    # If we called forward or backward, we want to change Pokemon.
+    if move == 'forward':
+        try:
+            # Make our selected Pokemon the index AFTER our current one.
+            selected = pokelist[pokelist.index(selected) + 1]
+        except IndexError:
+            # If there's an index error, it means we reached the end of the 
+            # list - circle back to the beginning!
+            selected = pokelist[0]
+    elif move == 'backward':
+        # Don't need an exception for index error here, since an index of -1
+        # already goes to the last Pokemon in the list.
+        selected = pokelist[pokelist.index(selected) - 1]
+    
+    #the above algorithm moves forward and backwards along the list
+    # relative to the text in the enry box so we need to keep updating
+    # the text in the entwy box to match the Pokemon we're currently on.......adawdafes f
+    if move is not None:
+        # deletes our entry
+        submit_entry.delete(0, tk.END)
+        # inserts the current Pokemon name (saved in selected)
+        submit_entry.insert(0, selected)
+    
+   
     
     # The name
     name_text["text"] = pokedex[selected][0]
@@ -32,7 +60,10 @@ def select_pokemon():
     height_entry["text"] = pokedex[selected][3]
     weight_entry["text"] = pokedex[selected][4]
     species_entry["text"] = pokedex[selected][5]
-    catch_entry["text"] = str(pokedex[selected][6]) + "chance to catch with a Pokeball"
+    catch_entry["text"] = str(pokedex[selected][6]) + "chance to catch \nwith a Pokeball"
+
+
+
 
 
 # Configure 4 rows and 3 columns.
@@ -68,7 +99,7 @@ search_frame = tk.Frame(root, relief = tk.RAISED, borderwidth = 2)
 search_frame.columnconfigure([0,1,2,3], weight = 1)
 
 # I converted this to a button
-left_button = tk.Button(search_frame, text = "Left Arrow", font = ("Futura", 16))
+left_button = tk.Button(search_frame, text = "Left Arrow", font = ("Futura", 16), command = lambda: select_pokemon(move = 'backward'))
 left_button.grid(row = 0, column = 0)
 
 # made an entry box for users to type latr
@@ -80,7 +111,7 @@ submit_button = tk.Button(search_frame, text = "Search!", font = ("Futura", 16),
 submit_button.grid(row = 0, column = 2)
 
 # Converted this to a th right button
-right_button = tk.Button(search_frame, text = "Right Arrow", font = ("Futura", 16))
+right_button = tk.Button(search_frame, text = "Right Arrow", font = ("Futura", 16), command = lambda: select_pokemon(move = 'forward'))
 right_button.grid(row = 0, column = 3)
 
 search_frame.grid(row = 0, column = 0, columnspan = 2, sticky = "ew")
