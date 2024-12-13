@@ -41,7 +41,7 @@ else:
 
 # Play background music
 pygame.mixer.music.load(bgm_path)
-pygame.mixer.music.set_volume(0.25)  # 50% volume
+pygame.mixer.music.set_volume(0.25)  # 25% volume
 pygame.mixer.music.play(-1, 0.0)  # loops the music
 # Global flag to track mute status
 is_muted = False
@@ -145,7 +145,7 @@ root.columnconfigure([i for i in range(3)], minsize=50, weight=1)
 
 #Name Frame
 name_label = tk.Frame(root, relief=tk.RAISED, borderwidth=4)
-name_text = tk.Label(name_label, text="Pokemon Name Here", font=("", 16))
+name_text = tk.Label(name_label, text="Pokemon Name Here", font=("Fixedsys", 16))
 name_text.pack()
 name_label.grid(row=0, column=2)
 
