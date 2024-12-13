@@ -1,3 +1,7 @@
+
+
+import requests
+
 import tkinter as tk
 
 # The window!
@@ -7,62 +11,77 @@ root.title("Pokedex")
 root.geometry("800x500")
 root.configure(background = "purple")
 
+##
+base_url = "https://pokeapi.co/api/v2/"
+
+# global variable to track the current Pokémon ID
+current_pokemon_id = 1
 
 ###Functions
 
-#Dummy information to test the search button
-pokedex = {
-    "bulbasaur": ["bulbasaur", "grass", "poison", 15, 15, "Grass Starter", 3.8],
-    "squirtle": ["squirtle", "water", "none", 10, 10, "Water Starter", 5.9],
-    "charmander": ["charmander", "fire", "none", 25, 25, "Fire Starter", 7.3]
-}
-
-def select_pokemon(move = None):
-    # gets the text typed into the Entry box
-    selected = submit_entry.get().lower() #made the thing lowercase just in case
+#fetches info from the API
+def get_pokemon_info(name):
+    url = f"{base_url}/pokemon/{name}"
+    response = requests.get(url)
     
-    # creates a list of Pokemon based on our dictionary.
-    pokelist = list(pokedex.keys())
-
-    # If we called forward or backward, we want to change Pokemon.
-    if move == 'forward':
-        try:
-            # Make our selected Pokemon the index AFTER our current one.
-            selected = pokelist[pokelist.index(selected) + 1]
-        except IndexError:
-            # If there's an index error, it means we reached the end of the 
-            # list - circle back to the beginning!
-            selected = pokelist[0]
-    elif move == 'backward':
-        # Don't need an exception for index error here, since an index of -1
-        # already goes to the last Pokemon in the list.
-        selected = pokelist[pokelist.index(selected) - 1]
-    
-    #the above algorithm moves forward and backwards along the list
-    # relative to the text in the enry box so we need to keep updating
-    # the text in the entwy box to match the Pokemon we're currently on.......adawdafes f
-    if move is not None:
-        # deletes our entry
-        submit_entry.delete(0, tk.END)
-        # inserts the current Pokemon name (saved in selected)
-        submit_entry.insert(0, selected)
-    
-   
-    
-    # The name
-    name_text["text"] = pokedex[selected][0]
-    
-    # The types
-    type1label["text"] = pokedex[selected][1]
-    type2label["text"] = pokedex[selected][2]
-    
-    # the height, weight, species, and catch rate
-    height_entry["text"] = pokedex[selected][3]
-    weight_entry["text"] = pokedex[selected][4]
-    species_entry["text"] = pokedex[selected][5]
-    catch_entry["text"] = str(pokedex[selected][6]) + "chance to catch \nwith a Pokeball"
+    if response.status_code == 200:
+        pokemon_data = response.json()
+        return pokemon_data
+    else: 
+        print(f"Failed to recieve data {response.status_code}")
+        return None
 
 
+def update_ui(data):
+    if data:
+        # Update the UI with Pokémon data
+        name_text["text"] = data.get("name", "Unknown").capitalize()
+        type1label["text"] = f"Type 1: {data['types'][0]['type']['name']}"
+        type2label["text"] = (
+            f"Type 2: {data['types'][1]['type']['name']}"
+            if len(data['types']) > 1 else "Type 2: None"
+        )
+        height_entry["text"] = f"Height: {data['height']}"
+        weight_entry["text"] = f"Weight: {data['weight']}"
+        id_entry["text"] = f"ID: {data['id']}"
+        catch_entry["text"] = "Catch Rate: N/A"  # Placeholder (not in basic API response)
+    else:
+        # Reset UI if no data is found
+        name_text["text"] = "Not Found"
+        type1label["text"] = "Type 1: N/A"
+        type2label["text"] = "Type 2: N/A"
+        height_entry["text"] = "Height: N/A"
+        weight_entry["text"] = "Weight: N/A"
+        id_entry["text"] = "ID: N/A"
+        catch_entry["text"] = "Catch Rate: N/A"
+
+def select_pokemon(move=None):
+    global current_pokemon_id
+
+    if move == "forward":
+        current_pokemon_id += 1
+    elif move == "backward" and current_pokemon_id > 1:
+        current_pokemon_id -= 1
+    else:
+        user_input = submit_entry.get().strip().lower()
+        if user_input.isdigit():
+            current_pokemon_id = int(user_input)
+        else:
+            # Fetch Pokémon data by name
+            data = get_pokemon_info(user_input)
+            if data:
+                current_pokemon_id = data['id']
+            else:
+                # Handle invalid input gracefully
+                update_ui(None)
+                return
+
+    # Fetch Pokémon data by ID and update UI
+    data = get_pokemon_info(current_pokemon_id)
+    update_ui(data)
+
+
+###TKINTER
 
 
 
@@ -136,8 +155,8 @@ height_entry.grid(row = 1, column = 0)
 weight_entry = tk.Label(info_frame, text = "Weight", font = ("Futura", 16))
 weight_entry.grid(row = 1, column = 1)
 
-species_entry = tk.Label(info_frame, text = "Species", font = ("Futura", 16))
-species_entry.grid(row = 2, column = 0)
+id_entry = tk.Label(info_frame, text = "ID", font = ("Futura", 16))
+id_entry.grid(row = 2, column = 0)
 
 catch_entry = tk.Label(info_frame, text = "Catch Rate", font = ("Futura", 16))
 catch_entry.grid(row = 2, column = 1)
