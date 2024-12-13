@@ -138,6 +138,10 @@ def toggle_mute():
         mute_button.config(text="Unmute")
     is_muted = not is_muted  #toggles
 
+
+
+
+
 ### TKINTER
 #5 rows and 3 columns.
 root.rowconfigure([i for i in range(5)], minsize=50, weight=1)
