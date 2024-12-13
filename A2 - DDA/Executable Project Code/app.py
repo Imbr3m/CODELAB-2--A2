@@ -161,7 +161,8 @@ info_frame.columnconfigure([0, 1], weight=1)
 image_path = r"C:\Users\raine\CODELAB-2--A2\A2 - DDA\Executable Project Code\assets\imgs\pokemon-logo-black-transparent.png"
 
 pokemon_title_image = Image.open(image_path)
-pokemon_title_image = pokemon_title_image.resize((200, 100))  
+pokemon_title_image = pokemon_title_image.convert("RGBA") # for the transparancy, cause it aint workin for some reason
+pokemon_title_image = pokemon_title_image.resize((150, 100))  
 
 pokemon_title_photo = ImageTk.PhotoImage(pokemon_title_image)
 
