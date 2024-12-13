@@ -18,8 +18,7 @@ base_url = "https://pokeapi.co/api/v2/"
 # global pokemon id
 current_pokemon_id = 1
 
-#for music I have to initializee
-pygame.mixer.init()
+
 
 
 
@@ -40,6 +39,8 @@ else:
 
 
 # Play background music
+#for music I have to initializee
+pygame.mixer.init()
 pygame.mixer.music.load(bgm_path)
 pygame.mixer.music.set_volume(0.25)  # 25% volume
 pygame.mixer.music.play(-1, 0.0)  # loops the music
